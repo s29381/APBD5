@@ -1,4 +1,5 @@
 ﻿using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using WebApplication2.Model;
 
 namespace WebApplication2.Repository;
