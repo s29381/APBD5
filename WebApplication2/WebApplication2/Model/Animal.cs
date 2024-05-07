@@ -2,8 +2,13 @@
 
 public class Animal
 {
-    public Animal(int idAnimal, string nameAnimal, string descriptionAnimal, string categoryAnimal, string area)
+    public Animal(int id, string name, string description, string category, string area)
     {
+        Id = id;
+        Name = name;
+        Description = description;
+        Category = category;
+        Area = area;
     }
 
     public int Id { get; set; }

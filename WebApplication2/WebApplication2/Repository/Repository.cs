@@ -45,7 +45,7 @@ public class Repository : IRepository
 
         int idO = reader.GetOrdinal("IdAnimal");
         int nameO = reader.GetOrdinal("Name");
-        int DescriptionO = reader.GetOrdinal("Description");
+        int descriptionO = reader.GetOrdinal("Description");
         int categoryO = reader.GetOrdinal("Category");
         int areaO = reader.GetOrdinal("Area");
         
@@ -54,13 +54,13 @@ public class Repository : IRepository
             int id = reader.GetInt32(idO);
             string name = reader.GetString(nameO);
             string description;
-            if (reader.IsDBNull(DescriptionO))
+            if (reader.IsDBNull(descriptionO))
             {
                 description = "";
             }
             else
             {
-                description = reader.GetString(DescriptionO);
+                description = reader.GetString(descriptionO);
             }
             string category = reader.GetString(categoryO);
             string area = reader.GetString(areaO);
@@ -83,6 +83,7 @@ public class Repository : IRepository
         command.Parameters.AddWithValue("category", dto.Category);
         command.Parameters.AddWithValue("area", dto.Area);
 
+        connection.Close();
         return command.ExecuteNonQuery() == 1;
     }
 
