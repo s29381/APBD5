@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿using System.Data;
+using System.Data.SqlClient;
 using Microsoft.Data.SqlClient;
 using WebApplication2.Model;
 
@@ -23,13 +24,12 @@ public class Repository : IRepository
         if (orderBy != null)
         {
             orderBy = orderBy.ToLower();
-            string regexPattern = "^(name|description|category|area)$";
         }
         
-        using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
-        connection.Open();
+        using SqlConnection con = new SqlConnection(_configuration.GetConnectionString("Default"));
+        con.Open();
         using SqlCommand command = new SqlCommand();
-        command.Connection = connection;
+        command.Connection = con;
         
         if (orderBy == null)
         {
@@ -43,11 +43,11 @@ public class Repository : IRepository
 
         List<Animal> animals = new List<Animal>();
 
-        int idO = reader.GetOrdinal("IdAnimal");
-        int nameO = reader.GetOrdinal("Name");
-        int descriptionO = reader.GetOrdinal("Description");
-        int categoryO = reader.GetOrdinal("Category");
-        int areaO = reader.GetOrdinal("Area");
+        int idO = reader.GetOrdinal("idAnimal");
+        int nameO = reader.GetOrdinal("name");
+        int descriptionO = reader.GetOrdinal("description");
+        int categoryO = reader.GetOrdinal("category");
+        int areaO = reader.GetOrdinal("area");
         
         while (reader.Read())
         {
@@ -66,50 +66,63 @@ public class Repository : IRepository
             string area = reader.GetString(areaO);
             animals.Add(new Animal(id,name,description,category,area));
         }
-        connection.Close();
+        con.Close();
         
         return animals;
     }
 
     public bool Create(DTO.DTO dto)
     {
-        using var connection = new SqlConnection(_configuration.GetConnectionString("Default"));
-        connection.Open();
-        
-        using var command = new SqlCommand("INSERT INTO Animal (Name, Description, Category, Area) " +
-                                           "VALUES (@name, @description, @category, @area)", connection);
-        command.Parameters.AddWithValue("name", dto.Name);
-        command.Parameters.AddWithValue("description", dto.Description);
-        command.Parameters.AddWithValue("category", dto.Category);
-        command.Parameters.AddWithValue("area", dto.Area);
+        using var con = new SqlConnection(_configuration.GetConnectionString("Default"));
+        con.Open();
+        using SqlCommand command = new SqlCommand();
+        command.Connection = con;
 
-        connection.Close();
-        return command.ExecuteNonQuery() == 1;
+        command.CommandText = "INSERT INTO Animal (Name, Description, Category, Area) VALUES (@name, @description, @category, @area)";
+        command.Parameters.AddWithValue("@name", dto.Name);
+        command.Parameters.AddWithValue("@description", dto.Description);
+        command.Parameters.AddWithValue("@category", dto.Category);
+        command.Parameters.AddWithValue("@area", dto.Area);
+
+        var affectedRows = command.ExecuteNonQuery();
+        
+        con.Close();
+        return affectedRows == 1;
     }
 
     public bool Update(int id, DTO.DTO dto)
     {
         using var con = new SqlConnection(_configuration.GetConnectionString("Default"));
         con.Open();
+        using SqlCommand command = new SqlCommand();
+        command.Connection = con;
         
-        using var command = new SqlCommand("UPDATE Animal SET Name = @name, Description = @description," +
-                                           "Category = @category, Area = @area WHERE IdAnimal = @id", con);
+        command.CommandText = "UPDATE Animal SET Name = @name, Description = @description, Category = @category, Area = @area WHERE IdAnimal = @id";
+        command.Parameters.AddWithValue("id", id);
         command.Parameters.AddWithValue("name", dto.Name);
         command.Parameters.AddWithValue("description", dto.Description);
         command.Parameters.AddWithValue("category", dto.Category);
         command.Parameters.AddWithValue("area", dto.Area);
-
-        return command.ExecuteNonQuery() == 1;
+        
+        var affectedRows = command.ExecuteNonQuery();
+        
+        con.Close();
+        return affectedRows == 1;
     }
 
     public bool Delete(int id)
     {
         using var con = new SqlConnection(_configuration.GetConnectionString("Default"));
         con.Open();
+        using SqlCommand command = new SqlCommand();
+        command.Connection = con;
         
-        using var command = new SqlCommand("DELETE FROM Animal WHERE IdAnimal = @id", con);
+        command.CommandText = "DELETE FROM Animal WHERE IdAnimal = @id";
         command.Parameters.AddWithValue("id", id);
 
-        return command.ExecuteNonQuery() == 1;
+        var affectedRows = command.ExecuteNonQuery();
+        
+        con.Close();
+        return affectedRows == 1;
     }
 }

@@ -17,23 +17,26 @@ public class Controller : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] DTO.DTO dto)
+    public IActionResult Create([FromBody] DTO.DTO dto, IService service)
     {
+        _service = service;
         var success = _service.Create(dto);
-        return success ? Created() : Conflict();
+        return success ? Ok() : Conflict();
     }
 
     [HttpPut]
-    public IActionResult Update([FromRoute] int id, [FromBody] DTO.DTO dto)
+    public IActionResult Update(int id, [FromBody] DTO.DTO dto, IService service)
     {
+        _service = service;
         var success = _service.Update(id, dto);
         return success ? Ok() : Conflict();
     }
 
     [HttpDelete]
-    public IActionResult Delete([FromRoute] int id)
+    public IActionResult Delete(int id, IService service)
     {
+        _service = service;
         var success = _service.Delete(id);
-        return success ? NoContent() : Conflict();
+        return success ? Ok() : Conflict();
     }
 }
